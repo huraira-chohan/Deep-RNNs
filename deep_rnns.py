@@ -12,7 +12,7 @@ from keras.models import Sequential
 from keras.layers import *
 import keras
 
-(X_train,y_train),(X_test,y_test) = imdb.load_data(num_words=10000) # The vocab is now 10k, the revies still 25k
+(X_train,y_train),(X_test,y_test) = imdb.load_data(num_words=10000) # The vocab is now 10k, the reviews still 25k
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
@@ -37,3 +37,36 @@ model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
 
 model.fit(X_train,y_train,epochs=5,validation_split=0.2,batch_size=32)
 
+
+from tensorflow.keras.datasets import imdb
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+
+word_index = imdb.get_word_index()
+
+# example review
+sample_review = "the movie was amazing and i loved it"
+
+# lowercase the review and split into words
+words = sample_review.lower().split()
+print("Words:", words)
+
+# convert each word into its number using word_index
+encoded_words = []
+for w in words:
+    number = word_index.get(w, 2)   # if word not found, use 2 (<UNK>)
+    encoded_words.append(number)
+
+print("Encoded words:", encoded_words)
+
+# add the <START> token (which is 1) at the beginning
+encoded_review = [1] + encoded_words
+print("Final encoded review:", encoded_review)
+
+#pad to length 500
+encoded_review = pad_sequences([encoded_review], maxlen=500)
+
+#predict
+prediction = model.predict(encoded_review)[0][0] # One picks review , other picks score
+print("Prediction:", prediction)
+print("Sentiment:", "Positive 😀" if prediction > 0.5 else "Negative 😡")
